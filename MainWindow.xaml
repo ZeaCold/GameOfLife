@@ -8,7 +8,7 @@
     x:Name="mainWindow"
     Title="MainWindow"
     Width="760"
-    Height="810"
+    Height="820"
     mc:Ignorable="d">
     <Grid
         x:Name="mainGrid"
@@ -17,26 +17,18 @@
         <Button
             x:Name="btnStart"
             Width="70"
+            Height="29"
             Margin="10,10,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
             Click="BtnStart_Click"
             Content="Start" />
-        <Button
-            x:Name="btnCanonPlane"
-            Width="100"
-            Height="20"
-            Margin="95,10,0,0"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Top"
-            Click="BtnCanonPlane_Click"
-            Content="Gosper Canon" />
         <ItemsControl
             Name="itemsControl"
             Width="710"
             Height="710"
-            Margin="10,35,0,0"
-            HorizontalAlignment="Left"
+            Margin="0,44,0,0"
+            HorizontalAlignment="Center"
             VerticalAlignment="Top"
             BorderBrush="Black"
             BorderThickness="1">
@@ -77,8 +69,8 @@
             x:Name="tblCoordinates"
             Width="710"
             Height="25"
-            Margin="10,750,0,0"
-            HorizontalAlignment="Left"
+            Margin="0,759,0,0"
+            HorizontalAlignment="Center"
             VerticalAlignment="Top"
             FontWeight="Bold"
             Foreground="Black"
@@ -86,9 +78,43 @@
             TextAlignment="Center" />
         <CheckBox
             x:Name="chxRoundCell"
-            Margin="640,15,0,0"
+            Height="29"
+            Margin="640,10,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
+            VerticalContentAlignment="Center"
             Content="Round cells" />
+        <Button
+            x:Name="btnGenerate"
+            Width="110"
+            Height="29"
+            Margin="95,10,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Click="GenerateElement"
+            Content="Generate" />
+        <ComboBox
+            x:Name="cmbStructures"
+            Width="180"
+            Height="29"
+            Margin="210,10,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            VerticalContentAlignment="Center">
+            <ComboBox.GroupStyle>
+                <GroupStyle>
+                    <GroupStyle.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}" />
+                        </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
+                </GroupStyle>
+            </ComboBox.GroupStyle>
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}" />
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
     </Grid>
 </Window>

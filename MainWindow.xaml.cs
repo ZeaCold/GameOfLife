@@ -1,9 +1,12 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -17,15 +20,9 @@ namespace GameOfLife
     {
         ObservableCollection<Cell> allCells = new ObservableCollection<Cell>();
 
-        const int HEIGHT = 15;
-        const int WIDTH = 15;
         const int VISIBLE_CELL_Y = 50;
         const int VISIBLE_CELL_X = 50;
-        const int CANON_PLANE_WIDTH = 36;
-        const int CANON_PLANE_HEIGHT = 9;
 
-        int fromX = 0;
-        int fromY = 0;
         List<int> neighborToBorn = new List<int>() { 3 };
         List<int> neighborToStayAlive = new List<int>() { 2, 3 };
 
@@ -36,9 +33,6 @@ namespace GameOfLife
             InitializeComponent();
 
             itemsControl.ItemsSource = allCells;
-
-            //itemsControl.Height = HEIGHT * VISIBLE_CELL_Y;
-            //itemsControl.Width = WIDTH * VISIBLE_CELL_X;
 
             // Initialize the list with the default cells
             for (int y = 0; y < VISIBLE_CELL_Y; y++)
@@ -56,6 +50,11 @@ namespace GameOfLife
             }
 
             DataContext = new { Rows = VISIBLE_CELL_X, Columns = VISIBLE_CELL_Y };
+
+            ListCollectionView lcv = new ListCollectionView(Structure.Structures);
+            lcv.GroupDescriptions.Add(new PropertyGroupDescription("Category"));
+
+            cmbStructures.ItemsSource = lcv;
         }
 
         private Cell GetCell(double ix, double iy)
@@ -128,63 +127,16 @@ namespace GameOfLife
                 btnStart.Content = "Stop";
             }
         }
-        private void BtnCanonPlane_Click(object sender, RoutedEventArgs e)
+
+        private void GenerateElement(object sender, RoutedEventArgs e)
         {
-            if (timer != default) return;
+            Structure structure = cmbStructures.SelectedItem as Structure;
 
             foreach (Cell cell in allCells)
-                cell.IsAlive = false;
-
-            for (int y = fromY + 1; y <= fromY + CANON_PLANE_HEIGHT; y++)
             {
-                for (int x = fromX + 1; x <= fromX + CANON_PLANE_WIDTH; x++)
-                {
-                    Cell cell = GetCell(x, y);
-                    cell.IsAlive = IsCanonPlaneCellAlive(x, y);
-                }
+                Point cellCoordinates = new Point(cell.X, cell.Y);
+                cell.IsAlive = structure.SetupLivingCells.Any(point => point.Equals(cellCoordinates));
             }
-        }
-
-        private bool IsCanonPlaneCellAlive(int x, int y)
-        {
-            if (y == 1 && x == 23)
-            {
-                return true;
-            }
-            else if (y == 2 && (x == 22 || x == 24))
-            {
-                return true;
-            }
-            else if (y == 3 && (x == 12 || x == 13 || x == 20 || x == 21 || x == 25 || x == 35 || x == 36))
-            {
-                return true;
-            }
-            else if (y == 4 && (x == 11 || x == 13 || x == 18 || x == 19 || x == 21 || x == 25 || x == 35 || x == 36))
-            {
-                return true;
-            }
-            else if (y == 5 && (x == 1 || x == 2 || x == 10 || x == 11 || x == 12 || x == 17 || x == 18 || x == 19 || x == 21 || x == 25))
-            {
-                return true;
-            }
-            else if (y == 6 && (x == 1 || x == 2 || x == 9 || x == 10 || x == 11 || x == 16 || x == 19 || x == 20 || x == 22 || x == 24))
-            {
-                return true;
-            }
-            else if (y == 7 && (x == 10 || x == 11 || x == 12 || x == 17 || x == 18 || x == 23))
-            {
-                return true;
-            }
-            else if (y == 8 && (x == 11 || x == 13))
-            {
-                return true;
-            }
-            else if (y == 9 && (x == 12 || x == 13))
-            {
-                return true;
-            }
-
-            return false;
         }
 
         private void DisplayCoordinate(object sender, MouseEventArgs e)
