@@ -20,7 +20,7 @@ public class Cell : INotifyPropertyChanged
         }
     }
 
-    public bool isEffectiveNow { get; set; }
+    public bool IsEffectiveNow { get; set; }
 
     public event PropertyChangedEventHandler PropertyChanged;
 
