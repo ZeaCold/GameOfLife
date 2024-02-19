@@ -15,10 +15,10 @@ namespace GameOfLife
     /// </summary>
     public partial class MainWindow : Window
     {
-        ObservableCollection<Cell> livingCells = new ObservableCollection<Cell>();
+        ObservableCollection<Cell> allCells = new ObservableCollection<Cell>();
 
-        const int HEIGHT = 12;
-        const int WIDTH = 12;
+        const int HEIGHT = 15;
+        const int WIDTH = 15;
         const int VISIBLE_CELL_Y = 50;
         const int VISIBLE_CELL_X = 50;
         const int CANON_PLANE_WIDTH = 36;
@@ -35,16 +35,17 @@ namespace GameOfLife
         {
             InitializeComponent();
 
-            itemsControl.ItemsSource = livingCells;
+            itemsControl.ItemsSource = allCells;
 
-            itemsControl.Height = HEIGHT * VISIBLE_CELL_Y;
-            itemsControl.Width = WIDTH * VISIBLE_CELL_X;
+            //itemsControl.Height = HEIGHT * VISIBLE_CELL_Y;
+            //itemsControl.Width = WIDTH * VISIBLE_CELL_X;
 
+            // Initialize the list with the default cells
             for (int y = 0; y < VISIBLE_CELL_Y; y++)
             {
                 for (int x = 0; x < VISIBLE_CELL_X; x++)
                 {
-                    livingCells.Add(new Cell()
+                    allCells.Add(new Cell()
                     {
                         X = x,
                         Y = y,
@@ -61,7 +62,7 @@ namespace GameOfLife
         {
             int x = (int)Math.Floor(ix);
             int y = (int)Math.Floor(iy);
-            Cell cell = livingCells.FirstOrDefault(c => c.X == x && c.Y == y);
+            Cell cell = allCells.FirstOrDefault(c => c.X == x && c.Y == y);
             return cell ?? new Cell() { X = x, Y = y, IsAlive = false, IsEffectiveNow = true };
         }
 
@@ -69,24 +70,22 @@ namespace GameOfLife
         {
             if (timer == default)
             {
-                Rectangle rect = sender as Rectangle;
-
-                rect.Fill = rect.Fill == Brushes.Black ? Brushes.White : Brushes.Black;
-
-                Point point = (Point)rect.Tag;
-                Cell cell = GetCell(point.X, point.Y);
-                cell.IsAlive = !cell.IsAlive;
+                if (sender is Rectangle clickedRect)
+                {
+                    if (clickedRect.DataContext is Cell cell)
+                    {
+                        cell.IsAlive = !cell.IsAlive;
+                    }
+                }
             }
         }
 
         private void CheckAlive(object state)
         {
-            foreach (Cell cell in livingCells)
-            {
+            foreach (Cell cell in allCells)
                 cell.IsEffectiveNow = true;
-            }
 
-            foreach (Cell cell in livingCells)
+            foreach (Cell cell in allCells)
             {
                 bool alive = IsAlive(cell.X, cell.Y);
                 if (alive != cell.IsAlive)
@@ -132,6 +131,9 @@ namespace GameOfLife
         private void BtnCanonPlane_Click(object sender, RoutedEventArgs e)
         {
             if (timer != default) return;
+
+            foreach (Cell cell in allCells)
+                cell.IsAlive = false;
 
             for (int y = fromY + 1; y <= fromY + CANON_PLANE_HEIGHT; y++)
             {
@@ -183,6 +185,18 @@ namespace GameOfLife
             }
 
             return false;
+        }
+
+        private void DisplayCoordinate(object sender, MouseEventArgs e)
+        {
+            if (sender is Rectangle clickedRect)
+            {
+                if (clickedRect.DataContext is Cell cell)
+                {
+                    string state = cell.IsAlive ? "alive" : "dead";
+                    tblCoordinates.Text = $"[{cell.X}, {cell.Y}] is {state}";
+                }
+            }
         }
     }
 }

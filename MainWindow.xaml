@@ -7,10 +7,13 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     x:Name="mainWindow"
     Title="MainWindow"
-    Width="1000"
-    Height="1000"
+    Width="760"
+    Height="810"
     mc:Ignorable="d">
-    <Grid x:Name="mainGrid">
+    <Grid
+        x:Name="mainGrid"
+        Width="730"
+        HorizontalAlignment="Center">
         <Button
             x:Name="btnStart"
             Width="70"
@@ -23,21 +26,20 @@
             x:Name="btnCanonPlane"
             Width="100"
             Height="20"
-            Margin="134,10,0,0"
+            Margin="95,10,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
             Click="BtnCanonPlane_Click"
             Content="Gosper Canon" />
-        <Button
-            x:Name="btnCanonPlane_Copy"
-            Width="100"
-            Height="20"
-            Margin="239,10,0,0"
+        <ItemsControl
+            Name="itemsControl"
+            Width="710"
+            Height="710"
+            Margin="10,35,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
-            Click="BtnCanonPlane_Click"
-            Content="Gosper Canon" />
-        <ItemsControl Name="itemsControl">
+            BorderBrush="Black"
+            BorderThickness="1">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <UniformGrid Columns="{Binding Columns}" Rows="{Binding Rows}" />
@@ -46,15 +48,23 @@
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Rectangle
-                        Width="12"
-                        Height="12"
-                        Stroke="Gray">
+                        Width="14"
+                        Height="14"
+                        MouseEnter="DisplayCoordinate"
+                        MouseLeftButtonDown="ToggleAlive"
+                        Stroke="DarkGray">
                         <Rectangle.Style>
                             <Style TargetType="Rectangle">
                                 <Setter Property="Fill" Value="White" />
+                                <Setter Property="RadiusX" Value="0" />
+                                <Setter Property="RadiusY" Value="0" />
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsAlive}" Value="True">
                                         <Setter Property="Fill" Value="Black" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding ElementName=chxRoundCell, Path=IsChecked}" Value="True">
+                                        <Setter Property="RadiusX" Value="7" />
+                                        <Setter Property="RadiusY" Value="7" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -63,6 +73,22 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
-
+        <TextBlock
+            x:Name="tblCoordinates"
+            Width="710"
+            Height="25"
+            Margin="10,750,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            FontWeight="Bold"
+            Foreground="Black"
+            Text="{Binding RelativeSource={RelativeSource AncestorType=Rectangle}, Path=Tag}"
+            TextAlignment="Center" />
+        <CheckBox
+            x:Name="chxRoundCell"
+            Margin="640,15,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Content="Round cells" />
     </Grid>
 </Window>
