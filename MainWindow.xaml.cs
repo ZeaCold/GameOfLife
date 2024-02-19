@@ -23,8 +23,8 @@ namespace GameOfLife
 
         int height = 12;
         int width = 12;
-        int visibleCellsY = 75;
-        int visibleCellsX = 75;
+        int visibleCellsY = 50;
+        int visibleCellsX = 50;
         int fromX = 0;
         int fromY = 0;
 
@@ -48,6 +48,7 @@ namespace GameOfLife
                         X = x,
                         Y = y,
                         IsAlive = false,
+                        isEffectiveNow = true
                     });
                 }
             }
@@ -60,7 +61,7 @@ namespace GameOfLife
             int x = (int)Math.Floor(ix);
             int y = (int)Math.Floor(iy);
             Cell cell = livingCells.FirstOrDefault(c => c.X == x && c.Y == y);
-            return cell == default ? new Cell() { X = x, Y = y, IsAlive = false } : cell;
+            return cell ?? new Cell() { X = x, Y = y, IsAlive = false, isEffectiveNow = true };
         }
 
         private void ToggleAlive(object sender, MouseButtonEventArgs e)
@@ -77,21 +78,21 @@ namespace GameOfLife
             }
         }
 
-        private int GetMinXCell() => livingCells.Min(c => c.X);
-
-        private int GetMinYCell() => livingCells.Min(c => c.Y);
-
-        private int GetMaxXCell() => livingCells.Max(c => c.X);
-
-        private int GetMaxYCell() => livingCells.Max(c => c.Y);
-
         private void CheckAlive(object state)
         {
             foreach (Cell cell in livingCells)
             {
+                cell.isEffectiveNow = true;
+            }
+
+            foreach (Cell cell in livingCells)
+            {
                 bool alive = IsAlive(cell.X, cell.Y);
-                cell.IsAlive = alive;
-                cell.isEffectiveNow = alive == cell.IsAlive;
+                if (alive != cell.IsAlive)
+                {
+                    cell.isEffectiveNow = false;
+                    cell.IsAlive = alive;
+                }
             }
         }
 
@@ -99,33 +100,18 @@ namespace GameOfLife
         {
             int nbAliveCells = 0;
 
-            bool result = GetCell(ix - 1, iy - 1).isEffectiveNow ? GetCell(ix - 1, iy - 1).IsAlive : !GetCell(ix - 1, iy - 1).IsAlive;
-            nbAliveCells = result ? nbAliveCells + 1 : nbAliveCells;
+            for (int dy = -1; dy <= 1; dy++)
+            {
+                for (int dx = -1; dx <= 1; dx++)
+                {
+                    if (dx == 0 && dy == 0) continue;
 
-            result = GetCell(ix, iy - 1).isEffectiveNow ? GetCell(ix, iy - 1).IsAlive : !GetCell(ix, iy - 1).IsAlive;
-            nbAliveCells = result ? nbAliveCells + 1 : nbAliveCells;
+                    Cell neighbor = GetCell(ix + dx, iy + dy);
+                    nbAliveCells += neighbor.isEffectiveNow ? neighbor.IsAlive ? 1 : 0 : !neighbor.IsAlive ? 1 : 0;
+                }
+            }
 
-            result = GetCell(ix + 1, iy - 1).isEffectiveNow ? GetCell(ix + 1, iy - 1).IsAlive : !GetCell(ix + 1, iy - 1).IsAlive;
-            nbAliveCells = result ? nbAliveCells + 1 : nbAliveCells;
-
-
-            result = GetCell(ix - 1, iy).isEffectiveNow ? GetCell(ix - 1, iy).IsAlive : !GetCell(ix - 1, iy).IsAlive;
-            nbAliveCells = result ? nbAliveCells + 1 : nbAliveCells;
-
-            result = GetCell(ix + 1, iy).isEffectiveNow ? GetCell(ix + 1, iy).IsAlive : !GetCell(ix + 1, iy).IsAlive;
-            nbAliveCells = result ? nbAliveCells + 1 : nbAliveCells;
-
-
-            result = GetCell(ix - 1, iy + 1).isEffectiveNow ? GetCell(ix - 1, iy + 1).IsAlive : !GetCell(ix - 1, iy + 1).IsAlive;
-            nbAliveCells = result ? nbAliveCells + 1 : nbAliveCells;
-
-            result = GetCell(ix, iy + 1).isEffectiveNow ? GetCell(ix, iy + 1).IsAlive : !GetCell(ix, iy + 1).IsAlive;
-            nbAliveCells = result ? nbAliveCells + 1 : nbAliveCells;
-
-            result = GetCell(ix + 1, iy + 1).isEffectiveNow ? GetCell(ix + 1, iy + 1).IsAlive : !GetCell(ix + 1, iy + 1).IsAlive;
-            nbAliveCells = result ? nbAliveCells + 1 : nbAliveCells;
-
-            return !GetCell(ix, iy).IsAlive ? nbAliveCells == 3 : nbAliveCells >= 2 && nbAliveCells <= 3;
+            return GetCell(ix, iy).IsAlive ? nbAliveCells >= 2 && nbAliveCells <= 3 : nbAliveCells == 3;
         }
 
         private void BtnStart_Click(object sender, RoutedEventArgs e)
@@ -138,7 +124,7 @@ namespace GameOfLife
             }
             else
             {
-                timer = new Timer(CheckAlive, default, 0, 100);
+                timer = new Timer(CheckAlive, default, 0, 500);
                 btnStart.Content = "Stop";
             }
         }
@@ -189,8 +175,6 @@ namespace GameOfLife
                     }
                 }
             }
-
-            //ShowCells();
         }
     }
 }
